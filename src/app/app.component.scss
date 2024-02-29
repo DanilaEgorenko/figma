@@ -1,0 +1,26 @@
+.form {
+  .input {
+    display: flex;
+    width: 100%;
+
+    &-url {
+      display: flex;
+      flex-direction: column;
+      width: 50%;
+    }
+
+    &-file {
+      display: flex;
+      flex-direction: column;
+      width: 50%;
+
+      &__name {
+        margin-left: 1rem;
+      }
+    }
+
+    &__divider {
+      margin: 0 2rem;
+    }
+  }
+}

@@ -1,0 +1,30 @@
+<form class="form">
+  <div class="input">
+    <div class="input-url">
+      <mat-form-field>
+        <mat-label>Введите URL</mat-label>
+        <input matInput #url />
+      </mat-form-field>
+      <button mat-raised-button color="primary" (click)="setCurUrl(url.value)">
+        Загрузить
+      </button>
+    </div>
+
+    <h2 class="input__divider">или</h2>
+
+    <div class="input-file">
+      <button
+        type="button"
+        mat-raised-button
+        color="primary"
+        (click)="fileInput.click()"
+      >
+        Выберите файл
+      </button>
+      <input hidden (change)="onFileSelected($event)" #fileInput type="file" />
+      <span class="input-file__name">{{ selectedFile?.name }}</span>
+    </div>
+  </div>
+</form>
+
+<canvas-view *ngIf="curUrl" [url]="curUrl"></canvas-view>

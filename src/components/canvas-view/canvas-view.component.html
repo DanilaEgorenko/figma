@@ -1,0 +1,13 @@
+<div class="info">
+  <p *ngIf="height">Высота изображения: {{ height }}px</p>
+  <p *ngIf="width">Ширина изображения: {{ width }}px</p>
+  <span *ngIf="pixel?.color"
+    >Цвет пикселя:
+    <div class="pixel-color" [ngStyle]="{ backgroundColor: pixel.color }"></div>
+    <div>{{ pixel.color }}</div>
+  </span>
+  <span *ngIf="pixel?.x">X: {{ pixel.x }}</span>
+  <br />
+  <span *ngIf="pixel?.y">Y: {{ pixel.y }}</span>
+</div>
+<canvas #canvas class="canvas" [width]="2000" [height]="1000"></canvas>

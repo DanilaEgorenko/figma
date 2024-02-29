@@ -1,0 +1,21 @@
+import { Component } from '@angular/core';
+
+@Component({
+  selector: 'app-root',
+  templateUrl: './app.component.html',
+  styleUrls: ['./app.component.scss'],
+})
+export class AppComponent {
+  selectedFile: any = null;
+
+  curUrl: string = '';
+
+  onFileSelected(event: any): void {
+    this.selectedFile = event.target.files[0] ?? null;
+    this.setCurUrl(URL.createObjectURL(this.selectedFile));
+  }
+
+  setCurUrl(url: string): void {
+    this.curUrl = url;
+  }
+}
