@@ -1,4 +1,13 @@
-<form class="form">
+<button
+  *ngIf="!isActiveForm"
+  mat-raised-button
+  color="primary"
+  (click)="isActiveForm = !isActiveForm"
+>
+  Назад
+</button>
+
+<form *ngIf="isActiveForm" class="form">
   <div class="input">
     <div class="input-url">
       <mat-form-field>
@@ -21,10 +30,16 @@
       >
         Выберите файл
       </button>
-      <input hidden (change)="onFileSelected($event)" #fileInput type="file" />
+      <input
+        hidden
+        (change)="onFileSelected($event)"
+        #fileInput
+        type="file"
+        accept="image/*"
+      />
       <span class="input-file__name">{{ selectedFile?.name }}</span>
     </div>
   </div>
 </form>
 
-<canvas-view *ngIf="curUrl" [url]="curUrl"></canvas-view>
+<canvas-view *ngIf="!isActiveForm" [url]="curUrl"></canvas-view>

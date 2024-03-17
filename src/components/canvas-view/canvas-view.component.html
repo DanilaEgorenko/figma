@@ -1,13 +1,33 @@
+<canvas #canvas class="canvas" [width]="width" [height]="height"></canvas>
 <div class="info">
-  <p *ngIf="height">Высота изображения: {{ height }}px</p>
-  <p *ngIf="width">Ширина изображения: {{ width }}px</p>
-  <span *ngIf="pixel?.color"
-    >Цвет пикселя:
+  <p *ngIf="width">Ширина: {{ width }}px</p>
+  <p *ngIf="height">Высота: {{ height }}px</p>
+  <div *ngIf="pixel?.color" class="info-color">
+    Цвет пикселя:
     <div class="pixel-color" [ngStyle]="{ backgroundColor: pixel.color }"></div>
     <div>{{ pixel.color }}</div>
-  </span>
+  </div>
   <span *ngIf="pixel?.x">X: {{ pixel.x }}</span>
   <br />
   <span *ngIf="pixel?.y">Y: {{ pixel.y }}</span>
+  <div class="slider">
+    <mat-slider
+      min="12"
+      max="300"
+      step="1"
+      [value]="percentageValue"
+      showTickMarks
+      discrete
+      [(ngModel)]="percentageValue"
+      #slider
+      (change)="drawImage()"
+    >
+      <input matSliderThumb />
+    </mat-slider>
+    <p>{{ slider.value }}%</p>
+  </div>
+  <button mat-raised-button color="primary" (click)="openDialog()">
+    Изменить
+  </button>
+  <button mat-raised-button (click)="downloadPhoto()">Скачать</button>
 </div>
-<canvas #canvas class="canvas" [width]="2000" [height]="1000"></canvas>

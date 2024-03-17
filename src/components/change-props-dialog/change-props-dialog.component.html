@@ -1,0 +1,53 @@
+<div class="change-props-dialog">
+  <p>Высота: {{ data.height }}, ширина: {{ data.width }}</p>
+  <form>
+    <mat-form-field>
+      <mat-label>Алгоритм</mat-label>
+      <select matNativeControl required>
+        <option value="nearest">Ближайшего соседа</option>
+        <option value="bi" disabled>Билинейный</option>
+      </select>
+    </mat-form-field>
+    <div class="checkboxes">
+      <mat-checkbox
+        (change)="changeInPercentages = !changeInPercentages"
+        [checked]="changeInPercentages"
+        >Изменять в процентах</mat-checkbox
+      >
+      <mat-checkbox
+        (change)="saveProportions = !saveProportions"
+        [checked]="saveProportions"
+        >Сохранять пропорции</mat-checkbox
+      >
+    </div>
+    <mat-form-field class="input">
+      <mat-label>Новая высота:</mat-label>
+      <input
+        matInput
+        type="number"
+        [value]="height"
+        #heightInput
+        (change)="setHeight(+heightInput.value)"
+      />
+    </mat-form-field>
+    <mat-form-field class="input">
+      <mat-label>Новая ширина:</mat-label>
+      <input
+        matInput
+        type="number"
+        [value]="width"
+        #widthInput
+        (change)="setWidth(+widthInput.value)"
+      />
+    </mat-form-field>
+  </form>
+  <button
+    mat-raised-button
+    color="primary"
+    (click)="save()"
+    matTooltip="Интерполяция методом ближайшего соседа (ступенчатая интерполяция) — метод интерполяции, при котором в качестве промежуточного значения выбирается ближайшее известное значение функции."
+  >
+    Сохранить
+  </button>
+  <button mat-raised-button color="warn" (click)="close()">Закрыть</button>
+</div>

@@ -9,6 +9,7 @@ export class AppComponent {
   selectedFile: any = null;
 
   curUrl: string = '';
+  isActiveForm: boolean = true;
 
   onFileSelected(event: any): void {
     this.selectedFile = event.target.files[0] ?? null;
@@ -17,5 +18,6 @@ export class AppComponent {
 
   setCurUrl(url: string): void {
     this.curUrl = url;
+    this.isActiveForm = false;
   }
 }
