@@ -14,7 +14,7 @@ export class ChangePropsDialogComponent {
 
   setHeight(value: number) {
     if (this.changeInPercentages) {
-      this.height *= value / 100;
+      this.height *= Math.ceil(value / 100);
     } else {
       this.height = value;
     }
@@ -29,7 +29,7 @@ export class ChangePropsDialogComponent {
 
   setWidth(value: number) {
     if (this.changeInPercentages) {
-      this.width *= value / 100;
+      this.width *= Math.ceil(value / 100);
     } else {
       this.width = value;
     }

@@ -12,6 +12,7 @@ export class AppComponent {
   isActiveForm: boolean = true;
 
   onFileSelected(event: any): void {
+    console.log(event);
     this.selectedFile = event.target.files[0] ?? null;
     this.setCurUrl(URL.createObjectURL(this.selectedFile));
   }

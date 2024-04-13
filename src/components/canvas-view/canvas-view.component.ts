@@ -64,21 +64,56 @@ export class CanvasViewComponent implements OnInit {
 
     img.onload = () => {
       if (ctx) {
-        ctx.clearRect(0, 0, this.width || 2000, this.height || 1000);
-        ctx.imageSmoothingEnabled = false;
+        ctx.clearRect(
+          0,
+          0,
+          this.canvas.nativeElement.width,
+          this.canvas.nativeElement.height
+        );
         if (!this.width && !this.height) {
           this.width = img.width;
+          this.canvas.nativeElement.width = img.width;
           this.height = img.height;
+          this.canvas.nativeElement.height = img.height;
         }
 
-        ctx.drawImage(img, 0, 0, this.width, this.height);
+        ctx.drawImage(
+          img,
+          this.canvas.nativeElement.width / 2 - this.width / 2,
+          this.canvas.nativeElement.height / 2 - this.height / 2,
+          this.width,
+          this.height
+        );
+        // const imageData = ctx.getImageData(0, 0, this.width, this.height);
+        // const data = imageData.data;
+        // const scaleX = img.width / this.width;
+        // const scaleY = img.height / this.height;
+
+        // for (let y = 0; y < this.height; ++y) {
+        //   for (let x = 0; x < this.width; ++x) {
+        //     const offset = (y * this.width + x) * 4;
+        //     const sourceOffset =
+        //       (Math.floor(y * scaleY) * img.width + Math.floor(x * scaleX)) * 4;
+        //     data[offset] = imageData.data[sourceOffset];
+        //     data[offset + 1] = imageData.data[sourceOffset + 1];
+        //     data[offset + 2] = imageData.data[sourceOffset + 2];
+        //     data[offset + 3] = imageData.data[sourceOffset + 3];
+        //   }
+        // }
+
+        // imageData.data.set(data);
+        // ctx.putImageData(imageData, 0, 0);
       }
     };
   }
 
   resizeImage(curr: number): void {
-    this.width = (this.width / (this.percentageValue / 100)) * (curr / 100);
-    this.height = (this.height / (this.percentageValue / 100)) * (curr / 100);
+    this.width = Math.ceil(
+      (this.width / (this.percentageValue / 100)) * (curr / 100)
+    );
+    this.height = Math.ceil(
+      (this.height / (this.percentageValue / 100)) * (curr / 100)
+    );
   }
 
   getColor(event: MouseEvent): void {
@@ -115,7 +150,7 @@ export class CanvasViewComponent implements OnInit {
   downloadPhoto(): void {
     const downloadLink = document.createElement('a');
     downloadLink.href = this.canvas.nativeElement.toDataURL('image/jpeg');
-    downloadLink.download = this.url;
+    downloadLink.download = this.url + '.jpg';
     downloadLink.click();
   }
 }
