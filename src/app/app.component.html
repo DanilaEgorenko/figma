@@ -1,11 +1,18 @@
-<button
-  *ngIf="!isActiveForm"
-  mat-raised-button
-  color="primary"
-  (click)="isActiveForm = !isActiveForm"
->
-  Назад
-</button>
+<header *ngIf="!isActiveForm">
+  <button
+    mat-raised-button
+    color="primary"
+    (click)="isActiveForm = !isActiveForm"
+  >
+    Назад
+  </button>
+
+  <app-tool-panel
+    [pipetteColor]="pipetteColor"
+    [pipetteColor2]="pipetteColor2"
+    (actualTool)="changeActiveTool($event)"
+  ></app-tool-panel>
+</header>
 
 <form *ngIf="isActiveForm" class="form">
   <div class="input">
@@ -37,4 +44,10 @@
   </div>
 </form>
 
-<canvas-view *ngIf="!isActiveForm" [url]="curUrl"></canvas-view>
+<canvas-view
+  *ngIf="!isActiveForm"
+  [url]="curUrl"
+  [activeTool]="activeTool"
+  (lastColor)="setPipetteColor($event)"
+  (altColor)="setAltPipetteColor($event)"
+></canvas-view>

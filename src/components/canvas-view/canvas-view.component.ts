@@ -4,20 +4,16 @@ import {
   Component,
   ElementRef,
   Input,
-  OnChanges,
   OnInit,
-  SimpleChanges,
+  Output,
   ViewChild,
 } from '@angular/core';
-import { fromEvent } from 'rxjs';
+import { combineLatest, fromEvent, of } from 'rxjs';
 import { MatDialog } from '@angular/material/dialog';
 import { ChangePropsDialogComponent } from '..';
-
-interface IPixel {
-  color: string;
-  x: number;
-  y: number;
-}
+import { switchMap, takeUntil, map, takeWhile, filter } from 'rxjs/operators';
+import { ColorInfo } from '../color-picker/color-picker.component';
+import { EventEmitter } from '@angular/core';
 
 @Component({
   selector: 'canvas-view',
@@ -27,7 +23,7 @@ interface IPixel {
 export class CanvasViewComponent implements OnInit {
   width!: number;
   height!: number;
-  pixel!: IPixel;
+  pixel!: ColorInfo;
 
   _percentageValue: number = 100;
 
@@ -41,70 +37,127 @@ export class CanvasViewComponent implements OnInit {
   }
 
   @Input() url: string = '';
+  @Input() activeTool: string = '';
+  @Output('lastColor') lastColor = new EventEmitter();
+  @Output('altColor') altColor = new EventEmitter();
 
   @ViewChild('canvas', { static: true }) canvas!: ElementRef<HTMLCanvasElement>;
+
+  private img = new Image();
+  private imgX = 0;
+  private imgY = 0;
 
   constructor(private dialog: MatDialog, private cdr: ChangeDetectorRef) {}
 
   ngOnInit() {
-    this.drawImage();
-    this.drawImage();
+    this.img.src = this.url;
+    this.img.onload = () => {
+      this.width = this.img.width;
+      this.height = this.img.height;
+      this.imgX = this.canvas.nativeElement.width / 2 - this.width / 2;
+      this.imgY = this.canvas.nativeElement.height / 2 - this.height / 2;
+      this.drawImageAtPosition(this.imgX, this.imgY);
+    };
 
-    fromEvent<MouseEvent>(this.canvas.nativeElement, 'click').subscribe(
-      (event) => {
-        this.getColor(event);
-      }
+    const mouseClick$ = fromEvent<MouseEvent>(
+      this.canvas.nativeElement,
+      'click'
     );
+
+    mouseClick$
+      .pipe(
+        filter((event) => !event.altKey && !event.ctrlKey && !event.shiftKey)
+      )
+      .subscribe((event) => {
+        this.getColor(event);
+        this.lastColor.emit(this.pixel);
+      });
+
+    mouseClick$
+      .pipe(filter((event) => event.altKey || event.ctrlKey || event.shiftKey))
+      .subscribe((event) => {
+        this.getColor(event);
+        this.altColor.emit(this.pixel);
+      });
   }
 
-  drawImage() {
-    const ctx = this.canvas?.nativeElement.getContext('2d');
-    const img = new Image();
-    img.src = this.url;
+  ngOnChanges(): void {
+    if (this.activeTool === 'move') {
+      this.initializeDragAndDrop();
+      this.initializeMouseWheel();
+    }
+  }
 
-    img.onload = () => {
-      if (ctx) {
-        ctx.clearRect(
-          0,
-          0,
-          this.canvas.nativeElement.width,
-          this.canvas.nativeElement.height
-        );
-        if (!this.width && !this.height) {
-          this.width = img.width;
-          this.canvas.nativeElement.width = img.width;
-          this.height = img.height;
-          this.canvas.nativeElement.height = img.height;
+  drawImage(src?: string) {
+    const ctx = this.canvas.nativeElement.getContext('2d');
+    if (ctx && this.img.complete) {
+      ctx.clearRect(
+        0,
+        0,
+        this.canvas.nativeElement.width,
+        this.canvas.nativeElement.height
+      );
+      ctx.drawImage(this.img, this.imgX, this.imgY, this.width, this.height);
+    }
+  }
+
+  resizeImageNeighbor(newWidth: number, newHeight: number) {
+    let sourceCtx = this.canvas?.nativeElement.getContext('2d');
+    let targetCanvasElement = document.createElement('canvas');
+    let targetCtx = targetCanvasElement.getContext('2d');
+
+    let sourceImageData = sourceCtx!.getImageData(
+      0,
+      0,
+      this.canvas.nativeElement.width,
+      this.canvas.nativeElement.height
+    );
+    let targetImageData = targetCtx!.createImageData(newWidth, newHeight);
+
+    let scaleX = this.canvas.nativeElement.width / newWidth;
+    let scaleY = this.canvas.nativeElement.height / newHeight;
+
+    for (let y = 0; y < newHeight; y++) {
+      for (let x = 0; x < newWidth; x++) {
+        let sourceX = Math.round(x * scaleX);
+        let sourceY = Math.round(y * scaleY);
+        let targetIndex = (y * newWidth + x) * 4;
+        let sourceIndex =
+          (sourceY * this.canvas.nativeElement.width + sourceX) * 4;
+        for (let i = 0; i < 4; i++) {
+          targetImageData.data[targetIndex + i] =
+            sourceImageData.data[sourceIndex + i];
         }
-
-        ctx.drawImage(
-          img,
-          this.canvas.nativeElement.width / 2 - this.width / 2,
-          this.canvas.nativeElement.height / 2 - this.height / 2,
-          this.width,
-          this.height
-        );
-        // const imageData = ctx.getImageData(0, 0, this.width, this.height);
-        // const data = imageData.data;
-        // const scaleX = img.width / this.width;
-        // const scaleY = img.height / this.height;
-
-        // for (let y = 0; y < this.height; ++y) {
-        //   for (let x = 0; x < this.width; ++x) {
-        //     const offset = (y * this.width + x) * 4;
-        //     const sourceOffset =
-        //       (Math.floor(y * scaleY) * img.width + Math.floor(x * scaleX)) * 4;
-        //     data[offset] = imageData.data[sourceOffset];
-        //     data[offset + 1] = imageData.data[sourceOffset + 1];
-        //     data[offset + 2] = imageData.data[sourceOffset + 2];
-        //     data[offset + 3] = imageData.data[sourceOffset + 3];
-        //   }
-        // }
-
-        // imageData.data.set(data);
-        // ctx.putImageData(imageData, 0, 0);
       }
-    };
+    }
+
+    this.width = newWidth;
+    this.height = newHeight;
+
+    sourceCtx!.clearRect(
+      0,
+      0,
+      Math.max(this.canvas.nativeElement.width, 30000),
+      Math.max(this.canvas.nativeElement.height, 30000)
+    );
+
+    this.canvas?.nativeElement
+      .getContext('2d')!
+      .putImageData(targetImageData, 0, 0);
+    this.canvas.nativeElement.toBlob((newBlob) => {
+      this.drawImage(URL.createObjectURL(newBlob!));
+    });
+  }
+
+  getPixel(x: number, y: number) {
+    const image = new Image();
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    canvas.width = 1;
+    canvas.height = 1;
+    ctx!.drawImage(image, x, y, 1, 1, 0, 0, 1, 1);
+    const data = ctx!.getImageData(0, 0, 1, 1).data;
+    return { r: data[0], g: data[1], b: data[2] };
   }
 
   resizeImage(curr: number): void {
@@ -114,6 +167,7 @@ export class CanvasViewComponent implements OnInit {
     this.height = Math.ceil(
       (this.height / (this.percentageValue / 100)) * (curr / 100)
     );
+    this.drawImage();
   }
 
   getColor(event: MouseEvent): void {
@@ -124,7 +178,11 @@ export class CanvasViewComponent implements OnInit {
         .getContext('2d')!
         .getImageData(offsetX, offsetY, 1, 1).data,
     ];
-    this.pixel = { ...this.pixel, color: `rgb(${r}, ${g}, ${b})` };
+    this.pixel = {
+      ...this.pixel,
+      color: `rgb(${r}, ${g}, ${b})`,
+      pixel: { r, g, b },
+    };
     this.pixel.x = offsetX;
     this.pixel.y = offsetY;
   }
@@ -141,9 +199,7 @@ export class CanvasViewComponent implements OnInit {
     });
 
     dialogRef.afterClosed().subscribe(({ width, height }) => {
-      this.width = width;
-      this.height = height;
-      this.drawImage();
+      this.resizeImageNeighbor(width, height);
     });
   }
 
@@ -152,5 +208,108 @@ export class CanvasViewComponent implements OnInit {
     downloadLink.href = this.canvas.nativeElement.toDataURL('image/jpeg');
     downloadLink.download = this.url + '.jpg';
     downloadLink.click();
+  }
+
+  initializeDragAndDrop() {
+    const canvasEl = this.canvas.nativeElement;
+    const mouseDown$ = fromEvent<MouseEvent>(canvasEl, 'mousedown');
+    const mouseMove$ = fromEvent<MouseEvent>(canvasEl, 'mousemove');
+    const mouseUp$ = fromEvent<MouseEvent>(canvasEl, 'mouseup');
+    const mouseLeave$ = fromEvent<MouseEvent>(canvasEl, 'mouseleave');
+
+    const drag$ = mouseDown$.pipe(
+      switchMap((startEvent) => {
+        const offsetX =
+          startEvent.clientX -
+          canvasEl.getBoundingClientRect().left -
+          this.imgX;
+        const offsetY =
+          startEvent.clientY - canvasEl.getBoundingClientRect().top - this.imgY;
+
+        return mouseMove$.pipe(
+          map((moveEvent) => {
+            let newX =
+              moveEvent.clientX -
+              canvasEl.getBoundingClientRect().left -
+              offsetX;
+            let newY =
+              moveEvent.clientY -
+              canvasEl.getBoundingClientRect().top -
+              offsetY;
+
+            // Проверка выхода за границы канваса
+            if (newX > 0) {
+              newX = 0;
+            } else if (newX < canvasEl.width - this.width) {
+              newX = canvasEl.width - this.width;
+            }
+
+            if (newY > 0) {
+              newY = 0;
+            } else if (newY < canvasEl.height - this.height) {
+              newY = canvasEl.height - this.height;
+            }
+
+            return { x: newX, y: newY };
+          }),
+          takeUntil(mouseUp$),
+          takeUntil(mouseLeave$),
+          takeWhile(() => this.activeTool === 'move')
+        );
+      })
+    );
+
+    drag$.subscribe((pos) => {
+      this.imgX = pos.x;
+      this.imgY = pos.y;
+      this.drawImageAtPosition(this.imgX, this.imgY);
+    });
+  }
+
+  initializeMouseWheel() {
+    const canvasEl = this.canvas.nativeElement;
+    fromEvent<WheelEvent>(canvasEl, 'wheel').subscribe((event) => {
+      event.preventDefault();
+
+      let deltaX = event.deltaX;
+      let deltaY = event.deltaY;
+
+      if (event.shiftKey) {
+        deltaX *= 5; // Ускоренная прокрутка при нажатом Shift
+        deltaY *= 5;
+      }
+
+      let newX = this.imgX - deltaX;
+      let newY = this.imgY - deltaY;
+
+      if (newX > 0) {
+        newX = 0;
+      } else if (newX < this.canvas.nativeElement.width - this.width) {
+        newX = this.canvas.nativeElement.width - this.width;
+      }
+
+      if (newY > 0) {
+        newY = 0;
+      } else if (newY < this.canvas.nativeElement.height - this.height) {
+        newY = this.canvas.nativeElement.height - this.height;
+      }
+
+      this.imgX = newX;
+      this.imgY = newY;
+      this.drawImageAtPosition(this.imgX, this.imgY);
+    });
+  }
+
+  drawImageAtPosition(x: number, y: number) {
+    const ctx = this.canvas.nativeElement.getContext('2d');
+    if (ctx) {
+      ctx.clearRect(
+        0,
+        0,
+        this.canvas.nativeElement.width,
+        this.canvas.nativeElement.height
+      );
+      ctx.drawImage(this.img, x, y, this.width, this.height);
+    }
   }
 }

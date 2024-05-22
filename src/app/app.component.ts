@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+import { ChangeDetectorRef, Component } from '@angular/core';
+import { ColorInfo } from 'src/components/color-picker/color-picker.component';
 
 @Component({
   selector: 'app-root',
@@ -10,6 +11,11 @@ export class AppComponent {
 
   curUrl: string = '';
   isActiveForm: boolean = true;
+  activeTool: string = '';
+  pipetteColor: ColorInfo | null = null;
+  pipetteColor2: ColorInfo | null = null;
+
+  constructor(private cdr: ChangeDetectorRef) {}
 
   onFileSelected(event: any): void {
     console.log(event);
@@ -20,5 +26,18 @@ export class AppComponent {
   setCurUrl(url: string): void {
     this.curUrl = url;
     this.isActiveForm = false;
+  }
+
+  changeActiveTool(value: string): void {
+    this.activeTool = value;
+    this.cdr.detectChanges();
+  }
+
+  setPipetteColor(pixel: ColorInfo | null) {
+    this.pipetteColor = pixel;
+  }
+
+  setAltPipetteColor(pixel: ColorInfo | null) {
+    this.pipetteColor2 = pixel;
   }
 }

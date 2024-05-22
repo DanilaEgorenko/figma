@@ -1,0 +1,26 @@
+<div class="tool-panel">
+  <button
+    mat-mini-fab
+    matTooltip="Переместить"
+    [color]="isActive === 'move' && 'warn'"
+    (click)="changeActive('move')"
+  >
+    <mat-icon>pan_tool</mat-icon>
+  </button>
+
+  <button
+    mat-mini-fab
+    matTooltip="Пипетка"
+    [color]="isActive === 'pipette' && 'warn'"
+    (click)="changeActive('pipette')"
+  >
+    <mat-icon>colorize</mat-icon>
+  </button>
+</div>
+
+<color-picker
+  *ngIf="isActive === 'pipette'"
+  [color1]="pipetteColor"
+  [color2]="pipetteColor2"
+  (close)="changeActive('')"
+></color-picker>
