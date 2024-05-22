@@ -16,6 +16,15 @@
   >
     <mat-icon>colorize</mat-icon>
   </button>
+
+  <button
+    mat-mini-fab
+    matTooltip="Кривые"
+    [color]="isActive === 'curves' && 'warn'"
+    (click)="changeActive('curves')"
+  >
+    <mat-icon>show_chart</mat-icon>
+  </button>
 </div>
 
 <color-picker
@@ -24,3 +33,11 @@
   [color2]="pipetteColor2"
   (close)="changeActive('')"
 ></color-picker>
+
+<app-curves-correction
+  *ngIf="isActive === 'curves'"
+  (apply)="applyCurvesCorrection()"
+  (reset)="resetCurvesCorrection()"
+  (close)="changeActive('')"
+>
+</app-curves-correction>

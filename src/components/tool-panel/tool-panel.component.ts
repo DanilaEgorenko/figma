@@ -19,4 +19,7 @@ export class ToolPanelComponent {
     this.pipetteColor = null;
     this.pipetteColor2 = null;
   }
+
+  applyCurvesCorrection(): void {}
+  resetCurvesCorrection(): void {}
 }

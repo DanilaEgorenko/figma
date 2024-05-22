@@ -1,0 +1,93 @@
+.curves-correction {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.histogram {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  margin-bottom: 20px;
+}
+
+.histogram canvas {
+  width: 100px;
+  height: 100px;
+  border: 1px solid #ccc;
+}
+
+.curves {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  margin-bottom: 20px;
+}
+
+.curves svg {
+  width: 255px;
+  height: 255px;
+  border: 1px solid #ccc;
+  margin-bottom: 20px;
+}
+
+.curves label {
+  display: block;
+  margin-bottom: 5px;
+}
+
+.curves input[type="number"] {
+  width: 50px;
+  padding: 5px;
+  margin: 0 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  text-align: center;
+}
+
+.curves input[type="checkbox"] {
+  margin-left: 10px;
+}
+
+.controls {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.controls button {
+  padding: 10px 20px;
+  margin: 0 5px;
+  border: none;
+  border-radius: 4px;
+  background-color: #007bff;
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.controls button:hover {
+  background-color: #0056b3;
+}
+
+.controls button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.histogram {
+  display: flex;
+  justify-content: space-around;
+  canvas {
+    width: 200px;
+    height: 200px;
+    border: 1px solid #000;
+  }
+}

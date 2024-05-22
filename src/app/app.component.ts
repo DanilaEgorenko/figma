@@ -18,7 +18,6 @@ export class AppComponent {
   constructor(private cdr: ChangeDetectorRef) {}
 
   onFileSelected(event: any): void {
-    console.log(event);
     this.selectedFile = event.target.files[0] ?? null;
     this.setCurUrl(URL.createObjectURL(this.selectedFile));
   }
