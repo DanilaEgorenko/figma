@@ -21,5 +21,7 @@
       </div>
     </div>
   </div>
+  <p *ngIf="color2!.color">Контрастность: {{ calculateContrast() }}</p>
+  <p *ngIf="color2!.color && calculateContrast() <= 4.5">Меньше 4.5!!!</p>
   <button class="close-button" (click)="handleClose()">Close</button>
 </div>
