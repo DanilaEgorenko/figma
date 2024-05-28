@@ -38,6 +38,7 @@ export class CanvasViewComponent implements OnInit {
 
   @Input() url: string = '';
   @Input() activeTool: string = '';
+  @Input() kernel: any;
   @Output('lastColor') lastColor = new EventEmitter();
   @Output('altColor') altColor = new EventEmitter();
 
@@ -86,6 +87,8 @@ export class CanvasViewComponent implements OnInit {
       this.initializeDragAndDrop();
       this.initializeMouseWheel();
     }
+
+    if (this.kernel) this.applyFilter(this.kernel);
   }
 
   drawImage(src?: string) {
@@ -173,10 +176,15 @@ export class CanvasViewComponent implements OnInit {
   getColor(event: MouseEvent): void {
     const offsetX = (event.offsetX * this.percentageValue) / 100;
     const offsetY = (event.offsetY * this.percentageValue) / 100;
+    const canvasHeightC =
+      this.canvas.nativeElement.offsetHeight / this.canvas.nativeElement.height;
+    const canvasWidthC =
+      this.canvas.nativeElement.offsetWidth / this.canvas.nativeElement.width;
     const [r, g, b] = [
       ...this.canvas.nativeElement
         .getContext('2d')!
-        .getImageData(offsetX, offsetY, 1, 1).data,
+        .getImageData(offsetX / canvasHeightC, offsetY / canvasWidthC, 1, 1)
+        .data,
     ];
     this.pixel = {
       ...this.pixel,
@@ -311,5 +319,45 @@ export class CanvasViewComponent implements OnInit {
       );
       ctx.drawImage(this.img, x, y, this.width, this.height);
     }
+  }
+
+  applyFilter(kernel: number[][]) {
+    const canvas = this.canvas.nativeElement;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    const outputData = ctx.createImageData(canvas.width, canvas.height);
+    const width = imgData.width;
+    const height = imgData.height;
+
+    const edgeHandling = (x: number, y: number) => {
+      if (x < 0) x = 0;
+      if (y < 0) y = 0;
+      if (x >= width) x = width - 1;
+      if (y >= height) y = height - 1;
+      return (y * width + x) * 4;
+    };
+
+    for (let y = 0; y < height; y++) {
+      for (let x = 0; x < width; x++) {
+        const r = [0, 0, 0, 0];
+        for (let ky = 0; ky < 3; ky++) {
+          for (let kx = 0; kx < 3; kx++) {
+            const srcIdx = edgeHandling(x + kx - 1, y + ky - 1);
+            const weight = kernel[ky][kx];
+            for (let c = 0; c < 4; c++) {
+              r[c] += imgData.data[srcIdx + c] * weight;
+            }
+          }
+        }
+        const destIdx = (y * width + x) * 4;
+        for (let c = 0; c < 4; c++) {
+          outputData.data[destIdx + c] = r[c];
+        }
+      }
+    }
+
+    ctx.putImageData(outputData, 0, 0);
   }
 }

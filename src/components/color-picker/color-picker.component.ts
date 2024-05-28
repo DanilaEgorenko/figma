@@ -22,6 +22,34 @@ export class ColorPickerComponent {
     this.close.emit();
   }
 
+  rgbToHex(r: number, g: number, b: number): string {
+    return (
+      '#' +
+      [r, g, b]
+        .map((x) => {
+          const hex = x.toString(16);
+          return hex.length === 1 ? '0' + hex : hex;
+        })
+        .join('')
+    );
+  }
+
+  rgbToXyz(r: number, g: number, b: number): string {
+    r /= 255;
+    g /= 255;
+    b /= 255;
+
+    [r, g, b] = [r, g, b].map((val) => {
+      return val > 0.04045 ? Math.pow((val + 0.055) / 1.055, 2.4) : val / 12.92;
+    });
+
+    const x = r * 0.4124564 + g * 0.3575761 + b * 0.1804375;
+    const y = r * 0.2126729 + g * 0.7151522 + b * 0.072175;
+    const z = r * 0.0193339 + g * 0.119192 + b * 0.9503041;
+
+    return `x: ${x}, y: ${y}, z: ${z}`;
+  }
+
   calculateContrast(): number {
     const luminance = (r: number, g: number, b: number) => {
       const a = [r, g, b].map((v) => {

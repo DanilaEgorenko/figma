@@ -1,5 +1,7 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { ColorInfo } from '../color-picker/color-picker.component';
+import { MatDialog } from '@angular/material/dialog';
+import { FilterDialogComponent } from '../app-filter-dialog/app-filter-dialog.component';
 
 @Component({
   selector: 'app-tool-panel',
@@ -12,6 +14,7 @@ export class ToolPanelComponent {
   @Input() pipetteColor2: ColorInfo | null = null;
   @Output('actualTool') actualTool: EventEmitter<string> = new EventEmitter();
   @Output('setColor') setColor: EventEmitter<string> = new EventEmitter();
+  @Output('setKernel') setKernel: EventEmitter<any> = new EventEmitter();
 
   changeActive(value: string): void {
     this.isActive = this.isActive === value ? '' : value;
@@ -20,6 +23,22 @@ export class ToolPanelComponent {
     this.pipetteColor2 = null;
   }
 
+  constructor(private dialog: MatDialog) {}
+
   applyCurvesCorrection(): void {}
   resetCurvesCorrection(): void {}
+
+  openFilterDialog() {
+    const dialogRef = this.dialog.open(FilterDialogComponent, {
+      width: '300px',
+      data: {},
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      this.changeActive('');
+      if (result) {
+        this.setKernel.emit(result.kernel);
+      }
+    });
+  }
 }

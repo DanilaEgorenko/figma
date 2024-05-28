@@ -14,6 +14,7 @@ export class AppComponent {
   activeTool: string = '';
   pipetteColor: ColorInfo | null = null;
   pipetteColor2: ColorInfo | null = null;
+  kernel: any;
 
   constructor(private cdr: ChangeDetectorRef) {}
 
@@ -38,5 +39,9 @@ export class AppComponent {
 
   setAltPipetteColor(pixel: ColorInfo | null) {
     this.pipetteColor2 = pixel;
+  }
+
+  setKernel(kernel: any) {
+    this.kernel = kernel;
   }
 }

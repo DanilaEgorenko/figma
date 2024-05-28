@@ -11,6 +11,7 @@
     [pipetteColor]="pipetteColor"
     [pipetteColor2]="pipetteColor2"
     (actualTool)="changeActiveTool($event)"
+    (setKernel)="setKernel($event)"
   ></app-tool-panel>
 </header>
 
@@ -48,6 +49,7 @@
   *ngIf="!isActiveForm"
   [url]="curUrl"
   [activeTool]="activeTool"
+  [kernel]="kernel"
   (lastColor)="setPipetteColor($event)"
   (altColor)="setAltPipetteColor($event)"
 ></canvas-view>

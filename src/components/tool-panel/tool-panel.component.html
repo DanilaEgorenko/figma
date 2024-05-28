@@ -25,6 +25,15 @@
   >
     <mat-icon>show_chart</mat-icon>
   </button>
+
+  <button
+    mat-mini-fab
+    matTooltip="Фильтры"
+    [color]="isActive === 'tune' && 'warn'"
+    (click)="changeActive('tune'); openFilterDialog()"
+  >
+    <mat-icon>tune</mat-icon>
+  </button>
 </div>
 
 <color-picker

@@ -1,0 +1,31 @@
+<form>
+  <label for="preset">Предустановленные значения:</label>
+  <select id="preset" (change)="onPresetChange($event)">
+    <option value="identity">Тождественное отображение</option>
+    <option value="sharpen">Повышение резкости</option>
+    <option value="gaussian">Гауссово размытие</option>
+    <option value="blur">Прямоугольное размытие</option>
+  </select>
+
+  <div class="kernel-grid">
+    <div *ngFor="let row of kernel; let rowIndex = index">
+      <input
+        *ngFor="let cell of row; let cellIndex = index"
+        type="number"
+        [(ngModel)]="kernel[rowIndex][cellIndex]"
+        name="kernel-{{ rowIndex }}-{{ cellIndex }}"
+      />
+    </div>
+  </div>
+
+  <label>
+    <input type="checkbox" [(ngModel)]="preview" name="preview" />
+    Превью
+  </label>
+
+  <div class="actions">
+    <button type="button" (click)="reset()">Сбросить</button>
+    <button type="button" (click)="apply()">Применить</button>
+    <button type="button" (click)="close()">Закрыть</button>
+  </div>
+</form>

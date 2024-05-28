@@ -1,27 +1,42 @@
 <div class="color-picker">
   <div class="color-panel">
-    <div class="color-info" *ngIf="color1">
-      <div class="color-swatch" [style.background-color]="color1!.color"></div>
+    <div class="color-info" *ngIf="color1?.color">
+      <div class="color-swatch" [style.background-color]="color1?.color"></div>
       <div class="color-details">
         <div>X: {{ color1!.x }}, Y: {{ color1!.y }}</div>
         <div>
           RGB: {{ color1!.pixel.r }}, {{ color1!.pixel.g }},
           {{ color1!.pixel.b }}
         </div>
+        <div>
+          HEX:
+          {{ rgbToHex(color1!.pixel.r, color1!.pixel.g, color1!.pixel.b) }}
+        </div>
+        <div>
+          XYZ: {{ rgbToXyz(color1!.pixel.r, color1!.pixel.g, color1!.pixel.b) }}
+        </div>
       </div>
     </div>
-    <div class="color-info" *ngIf="color2">
-      <div class="color-swatch" [style.background-color]="color2!.color"></div>
+    <div class="color-info" *ngIf="color2?.color">
+      <div class="color-swatch" [style.background-color]="color2?.color"></div>
       <div class="color-details">
         <div>X: {{ color2!.x }}, Y: {{ color2!.y }}</div>
         <div>
           RGB: {{ color2!.pixel.r }}, {{ color2!.pixel.g }},
           {{ color2!.pixel.b }}
         </div>
+        <div>
+          HEX:
+          {{ rgbToHex(color2!.pixel.r, color2!.pixel.g, color2!.pixel.b) }}
+        </div>
+        <div>
+          XYZ:
+          {{ rgbToXyz(color1!.pixel.r, color1!.pixel.g, color1!.pixel.b) }}
+        </div>
       </div>
     </div>
+    <p *ngIf="color2?.color">Контрастность: {{ calculateContrast() }}</p>
+    <p *ngIf="color2?.color && calculateContrast() <= 4.5">Меньше 4.5!!!</p>
+    <button class="close-button" (click)="handleClose()">Close</button>
   </div>
-  <p *ngIf="color2!.color">Контрастность: {{ calculateContrast() }}</p>
-  <p *ngIf="color2!.color && calculateContrast() <= 4.5">Меньше 4.5!!!</p>
-  <button class="close-button" (click)="handleClose()">Close</button>
 </div>

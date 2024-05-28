@@ -12,6 +12,7 @@ import { MatInputModule } from '@angular/material/input';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ToolPanelModule } from '../components/tool-panel/tool-panel.module';
 import { ColorPickerModule } from 'src/components/color-picker/color-picker.module';
+import { AppFilterDialogModule } from 'src/components/app-filter-dialog/app-filter-dialog.module';
 
 @NgModule({
   declarations: [AppComponent],
@@ -28,6 +29,7 @@ import { ColorPickerModule } from 'src/components/color-picker/color-picker.modu
     AppRoutingModule,
     BrowserAnimationsModule,
     ToolPanelModule,
+    AppFilterDialogModule,
   ],
 })
 export class AppModule {}
