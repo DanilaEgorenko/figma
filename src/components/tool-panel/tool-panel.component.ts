@@ -15,6 +15,7 @@ export class ToolPanelComponent {
   @Output('actualTool') actualTool: EventEmitter<string> = new EventEmitter();
   @Output('setColor') setColor: EventEmitter<string> = new EventEmitter();
   @Output('setKernel') setKernel: EventEmitter<any> = new EventEmitter();
+  @Output('setPreview') setPreview: EventEmitter<any> = new EventEmitter();
 
   changeActive(value: string): void {
     this.isActive = this.isActive === value ? '' : value;
@@ -32,6 +33,14 @@ export class ToolPanelComponent {
     const dialogRef = this.dialog.open(FilterDialogComponent, {
       width: '300px',
       data: {},
+    });
+
+    dialogRef.componentInstance.previewChange.subscribe((result) => {
+      this.setPreview.emit(result);
+    });
+
+    dialogRef.componentInstance.kernelChange.subscribe((kernel) => {
+      if (dialogRef.componentInstance.preview) this.setKernel.emit(kernel);
     });
 
     dialogRef.afterClosed().subscribe((result) => {

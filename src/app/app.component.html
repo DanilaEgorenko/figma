@@ -12,6 +12,7 @@
     [pipetteColor2]="pipetteColor2"
     (actualTool)="changeActiveTool($event)"
     (setKernel)="setKernel($event)"
+    (setPreview)="setPreview($event)"
   ></app-tool-panel>
 </header>
 
@@ -50,6 +51,8 @@
   [url]="curUrl"
   [activeTool]="activeTool"
   [kernel]="kernel"
+  [preview]="preview"
   (lastColor)="setPipetteColor($event)"
   (altColor)="setAltPipetteColor($event)"
+  #canvas
 ></canvas-view>

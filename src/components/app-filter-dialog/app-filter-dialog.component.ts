@@ -1,4 +1,4 @@
-import { Component, Inject } from '@angular/core';
+import { Component, EventEmitter, Inject, Output } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 
 @Component({
@@ -9,6 +9,9 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 export class FilterDialogComponent {
   kernel: number[][] = [];
   preview: boolean = false;
+
+  @Output() previewChange = new EventEmitter<any>();
+  @Output() kernelChange = new EventEmitter<any>();
 
   private presets: { [key: string]: number[][] } = {
     identity: [
@@ -42,6 +45,7 @@ export class FilterDialogComponent {
 
   onPresetChange(event: any) {
     this.kernel = this.presets[event.target.value];
+    this.kernelChange.emit(this.kernel);
   }
 
   reset() {
@@ -54,5 +58,13 @@ export class FilterDialogComponent {
 
   close() {
     this.dialogRef.close();
+  }
+
+  changePreview(): void {
+    this.previewChange.emit(this.preview);
+  }
+
+  onKernelChange(): void {
+    this.kernelChange.emit(this.kernel);
   }
 }

@@ -39,6 +39,7 @@ export class CanvasViewComponent implements OnInit {
   @Input() url: string = '';
   @Input() activeTool: string = '';
   @Input() kernel: any;
+  @Input() preview!: boolean;
   @Output('lastColor') lastColor = new EventEmitter();
   @Output('altColor') altColor = new EventEmitter();
 
@@ -47,6 +48,12 @@ export class CanvasViewComponent implements OnInit {
   private img = new Image();
   private imgX = 0;
   private imgY = 0;
+
+  initKernel = [
+    [0, 0, 0],
+    [0, 1, 0],
+    [0, 0, 0],
+  ];
 
   constructor(private dialog: MatDialog, private cdr: ChangeDetectorRef) {}
 
@@ -88,7 +95,8 @@ export class CanvasViewComponent implements OnInit {
       this.initializeMouseWheel();
     }
 
-    if (this.kernel) this.applyFilter(this.kernel);
+    if (this.kernel && !this.preview) this.applyFilter(this.kernel);
+    this.changePreview(this.preview);
   }
 
   drawImage(src?: string) {
@@ -331,33 +339,51 @@ export class CanvasViewComponent implements OnInit {
     const width = imgData.width;
     const height = imgData.height;
 
+    // Нормализация значений в матрице ядра к диапазону от 0 до 1
+    const normalizeKernel = (kernel: number[][]) => {
+      const max = Math.max(...kernel.map((row) => Math.max(...row)));
+      const min = Math.min(...kernel.map((row) => Math.min(...row)));
+      const range = max - min;
+      return kernel.map((row) => row.map((value) => (value - min) / range));
+    };
+
     const edgeHandling = (x: number, y: number) => {
-      if (x < 0) x = 0;
-      if (y < 0) y = 0;
-      if (x >= width) x = width - 1;
-      if (y >= height) y = height - 1;
+      x = Math.max(0, Math.min(x, width - 1));
+      y = Math.max(0, Math.min(y, height - 1));
       return (y * width + x) * 4;
     };
 
+    // Нормализация матрицы ядра
+    const normalizedKernel = normalizeKernel(kernel);
+
+    const result = new Uint8ClampedArray(outputData.data); // Создаем копию выходных данных для обработки
+
     for (let y = 0; y < height; y++) {
       for (let x = 0; x < width; x++) {
-        const r = [0, 0, 0, 0];
-        for (let ky = 0; ky < 3; ky++) {
-          for (let kx = 0; kx < 3; kx++) {
-            const srcIdx = edgeHandling(x + kx - 1, y + ky - 1);
-            const weight = kernel[ky][kx];
-            for (let c = 0; c < 4; c++) {
-              r[c] += imgData.data[srcIdx + c] * weight;
+        for (let z = 0; z < 4; z++) {
+          const r = [0, 0, 0, 0];
+          for (let ky = 0; ky < 3; ky++) {
+            for (let kx = 0; kx < 3; kx++) {
+              const srcIdx = edgeHandling(x + kx - 1, y + ky - 1);
+              const weight = normalizedKernel[ky][kx];
+              r[z] += imgData.data[srcIdx + z] * weight;
             }
           }
-        }
-        const destIdx = (y * width + x) * 4;
-        for (let c = 0; c < 4; c++) {
-          outputData.data[destIdx + c] = r[c];
+          const destIdx = (y * width + x) * 4 + z;
+          result[destIdx] = r[z];
         }
       }
     }
 
-    ctx.putImageData(outputData, 0, 0);
+    ctx.putImageData(new ImageData(result, width, height), 0, 0);
+  }
+
+  changePreview(preview: boolean) {
+    if (preview) {
+      console.log(this.kernel);
+      this.applyFilter(this.kernel);
+    } else {
+      this.applyFilter(this.initKernel);
+    }
   }
 }

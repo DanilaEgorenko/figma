@@ -8,18 +8,25 @@
   </select>
 
   <div class="kernel-grid">
-    <div *ngFor="let row of kernel; let rowIndex = index">
-      <input
-        *ngFor="let cell of row; let cellIndex = index"
-        type="number"
-        [(ngModel)]="kernel[rowIndex][cellIndex]"
-        name="kernel-{{ rowIndex }}-{{ cellIndex }}"
-      />
+    <div class="kernel-cell" *ngFor="let row of kernel; let rowIndex = index">
+      <div *ngFor="let cell of row; let cellIndex = index">
+        <input
+          type="number"
+          [(ngModel)]="kernel[rowIndex][cellIndex]"
+          (ngModelChange)="onKernelChange()"
+          name="kernel-{{ rowIndex }}-{{ cellIndex }}"
+        />
+      </div>
     </div>
   </div>
 
   <label>
-    <input type="checkbox" [(ngModel)]="preview" name="preview" />
+    <input
+      type="checkbox"
+      [(ngModel)]="preview"
+      name="preview"
+      (change)="changePreview()"
+    />
     Превью
   </label>
 

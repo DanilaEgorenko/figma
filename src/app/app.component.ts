@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component } from '@angular/core';
+import { ChangeDetectorRef, Component, ViewChild } from '@angular/core';
 import { ColorInfo } from 'src/components/color-picker/color-picker.component';
 
 @Component({
@@ -14,7 +14,14 @@ export class AppComponent {
   activeTool: string = '';
   pipetteColor: ColorInfo | null = null;
   pipetteColor2: ColorInfo | null = null;
-  kernel: any;
+  kernel: any = [
+    [0, 0, 0],
+    [0, 1, 0],
+    [0, 0, 0],
+  ];
+  preview: boolean = false;
+
+  @ViewChild('canvas') canvas: any;
 
   constructor(private cdr: ChangeDetectorRef) {}
 
@@ -43,5 +50,9 @@ export class AppComponent {
 
   setKernel(kernel: any) {
     this.kernel = kernel;
+  }
+
+  setPreview(preview: boolean) {
+    this.preview = preview;
   }
 }
